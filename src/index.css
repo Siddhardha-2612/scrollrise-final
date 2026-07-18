@@ -1,0 +1,136 @@
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Permanent+Marker&family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-cursive: "Great Vibes", cursive;
+  --font-brush: "Permanent Marker", cursive;
+  --font-mono: "Fira Code", monospace;
+
+  --color-brand-pink: #F52C68;
+  --color-brand-mint: #f5f5f7;
+
+  /* Modern Robotic Kinetic Animations */
+  --animate-float-robot: float-robot 3.5s ease-in-out infinite;
+  --animate-antenna-wiggle: antenna-wiggle 1.2s ease-in-out infinite;
+  --animate-arm-swing-l: arm-swing-l 2.5s ease-in-out infinite;
+  --animate-arm-swing-r: arm-swing-r 2.5s ease-in-out infinite;
+  --animate-joint-expand: joint-expand 2.2s ease-in-out infinite;
+  --animate-scanline-sweep: scanline-sweep 3s ease-in-out infinite;
+}
+
+@keyframes float-robot {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(0px) rotate(0deg);
+  }
+}
+
+@keyframes antenna-wiggle {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+@keyframes arm-swing-l {
+  0%, 100% {
+    transform: rotate(32deg) translateY(0px);
+  }
+  50% {
+    transform: rotate(32deg) translateY(0px);
+  }
+}
+
+@keyframes arm-swing-r {
+  0%, 100% {
+    transform: rotate(-32deg) translateY(0px);
+  }
+  50% {
+    transform: rotate(-32deg) translateY(0px);
+  }
+}
+
+@keyframes joint-expand {
+  0%, 100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes scanline-sweep {
+  0% {
+    top: -5%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.8;
+  }
+  85% {
+    opacity: 0.8;
+  }
+  100% {
+    top: 105%;
+    opacity: 0;
+  }
+}
+
+/* Custom visual style utilities for a premium tactile application look */
+.app-glass-card {
+  background: rgba(18, 18, 18, 0.7);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glow-pink {
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+}
+
+/* Hide all scrollbars globally for an immersive, seamless scrolling experience without visual clutter */
+::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+video::-webkit-media-controls-fullscreen-button,
+video::-webkit-media-controls-volume-slider,
+video::-webkit-media-controls-mute-button,
+video::-webkit-media-controls-volume-control-container,
+video::-webkit-media-controls-fullscreen-volume-slider {
+    display: none !important;
+}
+
+body, html, * {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important;  /* IE, Edge */
+}
+
+.custom-scrollbar::-webkit-scrollbar,
+.scrollbar-thin::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.custom-scrollbar {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+/* Hide navigation dock bar in story player view mode */
+body.viewing-stories #navigation-dock-bar,
+body.viewing-stories #emulator-status-bar,
+body.viewing-modal #navigation-dock-bar {
+  display: none !important;
+}
+
+

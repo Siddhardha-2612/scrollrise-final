@@ -1,0 +1,6 @@
+{
+  "appId": "com.booran.app",
+  "appName": "Booran",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}

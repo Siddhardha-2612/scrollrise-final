@@ -1,0 +1,6 @@
+{
+  "name": "ScrollRise",
+  "description": "A premium social connection and e-commerce hub featuring feeds, interactive channels, specialized camera, shopi commerce system, settings panels, and DM messaging.",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
