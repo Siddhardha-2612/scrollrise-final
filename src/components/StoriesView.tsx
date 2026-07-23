@@ -221,7 +221,7 @@ export default function StoriesManager({
   const [newCommentText, setNewCommentText] = useState<string>("");
   const [showReportModal, setShowReportModal] = useState<boolean>(false);
   const [videoDuration, setVideoDuration] = useState<number | null>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = React.useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (videoRef.current) {
@@ -549,7 +549,7 @@ export default function StoriesManager({
         />
 
         {/* Progress Bars Indicator */}
-        <div className="absolute top-0 inset-x-0 z-50 pt-6 px-3 pb-3 bg-gradient-to-b from-black via-black/60 to-transparent space-y-3 shrink-0">
+        <div className="absolute top-0 inset-x-0 z-50 pt-6 px-3 pb-3 bg-gradient-to-b from-black via-black/60 to-transparent space-y-3 shrink-0 safe-area-top">
           <div className="flex items-center space-x-1.5">
             {activeGroup.stories.map((seg, sIdx) => {
               let pct = 0;
@@ -581,7 +581,15 @@ export default function StoriesManager({
                   referrerPolicy="no-referrer"
                 />
               </div>
-              <div>
+              <div
+                onClick={() => {
+                  if (activeGroup.userId !== "you" && onOpenDMs) {
+                    setIsViewingStories(false);
+                    onOpenDMs();
+                  }
+                }}
+                className="cursor-pointer hover:opacity-80"
+              >
                 <span className="block text-sm font-extrabold text-white leading-tight">
                   {activeGroup.userId === "you" ||
                   activeGroup.username === "your_story"
@@ -830,6 +838,7 @@ export default function StoriesManager({
                         reportedItemType: 'flash',
                         reason: 'Community Flag'
                       });
+                      triggerToast("Flash reported and hidden from you.");
                     } catch (e) {
                       console.error("Report failed:", e);
                     }
@@ -841,7 +850,6 @@ export default function StoriesManager({
                   setIsViewingStories(false);
                   setActiveStoryGroupIndex(null);
                   setShowReportModal(false);
-                  triggerToast("Content reported and hidden.");
                 }}
                 className="w-full text-left p-4 hover:bg-white/5 rounded-xl transition-colors text-[#F52C68] font-bold text-sm cursor-pointer"
               >

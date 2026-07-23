@@ -29,7 +29,7 @@ export default function VerifyPhoneView({ onBack, onVerified }: VerifyPhoneViewP
 
   return (
     <div className="absolute inset-0 bg-neutral-950 z-[100] flex flex-col font-sans animate-fade-in">
-      <div className="sticky top-0 z-10 bg-neutral-950/90 backdrop-blur-md px-4 py-4 flex items-center border-b border-white/5">
+      <div className="sticky top-0 z-10 bg-neutral-950/90 backdrop-blur-md px-4 py-4 flex items-center border-b border-white/5 safe-area-top">
         <button
           onClick={onBack}
           className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-white active:scale-95 transition-all mr-3"

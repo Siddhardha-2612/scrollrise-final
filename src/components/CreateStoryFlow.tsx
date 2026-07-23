@@ -75,7 +75,7 @@ export default function CreateStoryFlow({
   const [calligraphyIndex, setCalligraphyIndex] = useState(0);
   const [captionOffset, setCaptionOffset] = useState({ x: 0, y: 0 });
   const [isDraggingCaption, setIsDraggingCaption] = useState(false);
-  const captionDragStart = useRef({ x: 0, y: 0, offsetX: 0, offsetY: 0 });
+  const captionDragStart = React.useRef({ x: 0, y: 0, offsetX: 0, offsetY: 0 });
 
   const handleCaptionPointerDown = (e: React.PointerEvent) => {
     setIsDraggingCaption(true);
@@ -105,7 +105,7 @@ export default function CreateStoryFlow({
     e.currentTarget.releasePointerCapture(e.pointerId);
   };
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const [isCloseFriends, setIsCloseFriends] = useState<boolean>(false);
 

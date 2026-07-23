@@ -1,5 +1,5 @@
 import { scopedStorage } from "../utils/storage";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { CameraPlusIcon } from './CameraPlusIcon';
 import { Settings, Plus, Truck, Star, Shield } from 'lucide-react';
 
@@ -117,10 +117,10 @@ export default function GridSettingsHubView({
   // Symmetrical Robot hold & drag states (moving navigation)
   const [isHoldingCenter, setIsHoldingCenter] = useState(false);
   const [dragOffsetCenter, setDragOffsetCenter] = useState({ x: 0, y: 0 });
-  const startDragOffsetCenter = React.useRef({ x: 0, y: 0 });
-  const clickPreventRef = React.useRef(false);
-  const holdTimerRef = React.useRef<number | null>(null);
-  const accumulatedMovement = React.useRef(0);
+  const startDragOffsetCenter = useRef({ x: 0, y: 0 });
+  const clickPreventRef = useRef(false);
+  const holdTimerRef = useRef<number | null>(null);
+  const accumulatedMovement = useRef(0);
 
   const handleMouseDownCenter = (e: React.MouseEvent) => {
     clickPreventRef.current = false;
@@ -244,7 +244,7 @@ export default function GridSettingsHubView({
   return (
     <div 
       id="exact-settings-hub-dial-screen" 
-      className="w-full h-full max-h-[100%] overflow-hidden bg-black text-white p-4 pb-20 flex flex-col select-none relative justify-center items-center"
+      className="w-full h-full max-h-[100%] overflow-hidden bg-transparent text-white p-4 pb-20 flex flex-col select-none relative justify-center items-center"
     >
       {toastMessage && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-neutral-900 border border-white/10 px-5 py-3 rounded-2xl shadow-2xl text-xs text-white font-sans font-medium flex items-center gap-3 animate-fade-in whitespace-nowrap">

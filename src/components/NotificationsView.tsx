@@ -172,7 +172,7 @@ export default function NotificationsView({
     <div className="w-full min-h-full bg-black text-white flex flex-col relative" id="notifications-page-view">
       
       {/* Top Header */}
-      <header className="px-6 py-5 flex items-center justify-between sticky top-0 z-30">
+      <header className="px-6 py-5 flex items-center justify-between sticky top-0 z-30 safe-area-top">
         <button
           onClick={onBack}
           className="w-10 h-10 rounded-xl bg-neutral-900 border border-white/5 flex items-center justify-center hover:bg-neutral-800 active:scale-95 transition-all text-neutral-400 hover:text-white cursor-pointer"

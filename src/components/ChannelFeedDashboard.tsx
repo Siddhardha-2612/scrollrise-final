@@ -254,7 +254,7 @@ export default function ChannelFeedDashboard({
 
   const [storyGroups, setStoryGroups] = useState<StoryGroup[]>([]);
 
-  const generateNewFlashRef = useRef<() => void>(() => {});
+  const generateNewFlashRef = React.useRef<() => void>(() => {});
 
   // Save changes to storyGroups
   useEffect(() => {
@@ -470,6 +470,8 @@ export default function ChannelFeedDashboard({
   const [virals, setVirals] = useState<FeedItem[]>([]);
   const [allVirals, setAllVirals] = useState<FeedItem[]>([]);
   const [viralsPage, setViralsPage] = useState<number>(1);
+  const [channelsList, setChannelsList] = useState<FeedItem[]>([]);
+  const [connectionsList, setConnectionsList] = useState<FeedItem[]>([]);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const loadMoreChannelsRef = useRef<HTMLDivElement>(null);
   const loadMoreConnectionsRef = useRef<HTMLDivElement>(null);
@@ -1192,147 +1194,43 @@ export default function ChannelFeedDashboard({
     setNotifications([...customLogs, ...defaults]);
   }, []);
 
-  const [channelsList, setChannelsList] = useState<FeedItem[]>([]);
-
   useEffect(() => {
-    try {
-      const stored = scopedStorage.getItem("booran_pending_connections");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setChannelsList(
-            parsed.map((p: any, i: number) => {
-              const name = typeof p === "string" ? p : p.name || "Unknown";
-              const uid = typeof p === "object" && p.id ? p.id : `ch-${i}`;
-              const image =
-                typeof p === "object" && p.avatar
-                  ? p.avatar
-                  : getHumanAvatar(String(encodeURIComponent(name)));
-              return {
-                id: uid,
-                name: name,
-                image: image,
-                detailText: "Linked via Connects.",
-              };
-            }),
-          );
-          return;
-        }
-      }
-    } catch (e) {}
-    setChannelsList([
-      {
-        id: "con_1",
-        name: "Alpha Echo",
-        image: getHumanAvatar("Alpha Echo"),
-        detailText: "Linked via Connects.",
-      },
-      {
-        id: "con_2",
-        name: "Booran Prime",
-        image: getHumanAvatar("Booran Prime"),
-        detailText: "Linked via Connects.",
-      },
-      {
-        id: "con_3",
-        name: "Shopi Patron",
-        image: getHumanAvatar("Shopi Patron"),
-        detailText: "Linked via Connects.",
-      },
-      {
-        id: "con_4",
-        name: "wanderlust_2024",
-        image: getHumanAvatar("wanderlust_2024"),
-        detailText: "Linked via Connects.",
-      },
-      {
-        id: "con_5",
-        name: "auto_enthusiast",
-        image: getHumanAvatar("auto_enthusiast"),
-        detailText: "Linked via Connects.",
-      },
-      {
-        id: "con_6",
-        name: "classic_dreamer",
-        image: getHumanAvatar("classic_dreamer"),
-        detailText: "Linked via Connects.",
-      },
-    ]);
-  }, [feedRefreshTrigger]);
-
-  const [connectionsList, setConnectionsList] = useState<FeedItem[]>([]);
-
-  useEffect(() => {
-    const handleSyncDashboard = () => {
+    const fetchConnectionsData = async () => {
       try {
-        const stored = scopedStorage.getItem("booran_connections_v2");
-        if (stored) {
-          const parsed = JSON.parse(stored);
+        const storedPending = scopedStorage.getItem("booran_pending_connections");
+        if (storedPending) {
+          const parsed = JSON.parse(storedPending);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            const newList = parsed.map((p: any, i: number) => {
-              const name = typeof p === "string" ? p : p.name || "Unknown";
-              const uid = typeof p === "object" && p.id ? p.id : `conn-${i}`;
-              const image =
-                typeof p === "object" && p.avatar
-                  ? p.avatar
-                  : getHumanAvatar(String(encodeURIComponent(name)));
-              return {
-                id: uid,
-                name: name,
-                image: image,
-                detailText: "Linked via Booran Invite Core.",
-              };
-            });
-            if (JSON.stringify(newList) !== JSON.stringify(connectionsList)) {
-              setConnectionsList(newList);
-            }
-            return;
+            setChannelsList(
+              parsed.filter((p: any) => p.requested !== false).map((p: any, i: number) => ({
+                id: p.id || `ch-${i}`,
+                name: p.name,
+                image: p.avatar || getHumanAvatar(p.name),
+                detailText: p.info || "Wants to connect",
+              }))
+            );
           }
         }
       } catch (e) {}
 
-      // Default fallback connections so they do not disappear
-      const defaults = ["@lofi_shutter", "@hardware_junkie"];
-      const defaultList = defaults.map((name, i) => ({
-        id: `conn-default-${i}`,
-        name: name,
-        image: getHumanAvatar(String(encodeURIComponent(name))),
-        detailText: "Linked via Booran Invite Core.",
-      }));
-      if (JSON.stringify(defaultList) !== JSON.stringify(connectionsList)) {
-        setConnectionsList(defaultList);
+      if (connectionList && connectionList.length > 0) {
+        setConnectionsList(
+          connectionList.map((name, i) => ({
+            id: `conn-${i}`,
+            name: name,
+            image: getHumanAvatar(name),
+            detailText: "Linked and connected.",
+          }))
+        );
       }
     };
 
-    handleSyncDashboard();
-    window.addEventListener("booran_connections_updated", handleSyncDashboard);
-    return () => window.removeEventListener("booran_connections_updated", handleSyncDashboard);
-  }, [feedRefreshTrigger]);
+    fetchConnectionsData();
+  }, [connectionList, feedRefreshTrigger]);
 
   useEffect(() => {
-    const rawNames = connectionsList.map((c) => c.name);
-    try {
-      const stored = scopedStorage.getItem("booran_connections_v2");
-      if (stored) {
-        const currentStoredList = JSON.parse(stored);
-        if (JSON.stringify(rawNames) !== JSON.stringify(currentStoredList)) {
-          scopedStorage.setItem("booran_connections_v2", JSON.stringify(rawNames));
-          window.dispatchEvent(
-            new CustomEvent("booran_connections_updated", {
-              detail: { origin: "ChannelFeedDashboard" },
-            }),
-          );
-        }
-      } else if (rawNames.length > 0) {
-        scopedStorage.setItem("booran_connections_v2", JSON.stringify(rawNames));
-        window.dispatchEvent(
-          new CustomEvent("booran_connections_updated", {
-            detail: { origin: "ChannelFeedDashboard" },
-          }),
-        );
-      }
-    } catch (e) {}
-  }, [connectionsList]);
+    // Sync logic removed - we now rely on props and local fetchInitialData
+  }, [feedRefreshTrigger]);
 
   // Auto-refresh interval removed per user's instruction. Story generation is now triggered on refresh.
   const allUsersRef = useRef<FeedItem[]>([]);
@@ -1412,7 +1310,7 @@ export default function ChannelFeedDashboard({
   }, []);
 
   // Trigger new flash when home icon refresh is tapped
-  const isInitialTriggerMount = useRef(true);
+  const isInitialTriggerMount = React.useRef(true);
   useEffect(() => {
     if (isInitialTriggerMount.current) {
       isInitialTriggerMount.current = false;
@@ -1603,18 +1501,26 @@ export default function ChannelFeedDashboard({
     },
   ];
 
-  const handleConnectPost = (e: any, post: FeedItem) => {
+  const handleConnectPost = async (e: any, post: FeedItem) => {
     e.stopPropagation();
     const cleanName = post.name.toLowerCase().replace(/^@+/, "");
     const isConnected = dashboardConnectedUsers[cleanName];
-    if (!isConnected) {
-      if (window) {
-        window.dispatchEvent(
-          new CustomEvent("booran-add-connection", {
-            detail: { name: cleanName },
-          }),
-        );
-      }
+
+    try {
+      // Toggle logic
+      await api.requestConnection(cleanName);
+
+      // Update local state via event
+      window.dispatchEvent(
+        new CustomEvent("booran-add-connection", {
+          detail: { name: cleanName },
+        }),
+      );
+
+      triggerToast(isConnected ? `Disconnected from ${post.name}` : `Linked with ${post.name}!`);
+    } catch (err) {
+      console.error("Connection toggle failed:", err);
+      triggerToast("Connection failed. Try again.");
     }
   };
 
@@ -1703,7 +1609,7 @@ export default function ChannelFeedDashboard({
         className="flex-1 flex flex-col h-full min-h-screen overflow-y-auto z-[2] relative"
       >
         {/* Premium Header conforming to Mockup screen */}
-        <header className="sticky top-0 z-30 bg-transparent py-5 px-5 flex items-center justify-between">
+        <header className="sticky top-0 z-30 bg-transparent py-5 px-5 flex items-center justify-between safe-area-top">
           {/* Left Side: Your Story / Custom Navigation Launcher */}
           <div className="flex flex-col items-center">
             {(() => {
@@ -1787,7 +1693,7 @@ export default function ChannelFeedDashboard({
           </div>
 
           {/* Brand Title / Logo inserted in the middle left area */}
-          <div className="flex-1 flex items-center justify-center -translate-y-1 pl-2">
+          <div className="flex-1 flex items-center justify-center -translate-y-1 pl-2 gap-3">
             <h1
               onClick={() => {
                 if (onOpenConnectionsHub) {
@@ -1801,6 +1707,13 @@ export default function ChannelFeedDashboard({
             >
               Scrollrise
             </h1>
+            <button
+              onClick={() => setShowQRModal(true)}
+              className="p-1.5 rounded-lg bg-blue-600/20 text-blue-500 hover:bg-blue-600/30 transition-colors shadow-sm"
+              title="My QR Code"
+            >
+              <QrCode className="w-6 h-6" />
+            </button>
           </div>
 
           <div className="flex flex-col items-center shrink-0 justify-center">
@@ -2076,10 +1989,29 @@ export default function ChannelFeedDashboard({
               {(() => {
                 const isScrollsFeed = activeFeedTab === "reels";
                 
-                // Fetch all public ads from storage (live filter)
+                // Fetch all public ads (local + from server posts)
                 let allAds: any[] = [];
                 try {
-                  allAds = getAds();
+                  const localAds = getAds();
+                  const serverAds = allVirals.filter(v => (v as any).isAd).map(v => ({
+                    id: v.id,
+                    ownerId: v.name,
+                    src: v.image,
+                    link: (v as any).link,
+                    contact: (v as any).contact,
+                    action: (v as any).action,
+                    mediaType: v.format === 'video' ? 'video' : 'image',
+                    createdAt: v.timestamp
+                  }));
+
+                  // Combine and de-duplicate
+                  const combined = [...localAds];
+                  serverAds.forEach(sa => {
+                    if (!combined.some(la => la.id === sa.id)) {
+                      combined.push(sa);
+                    }
+                  });
+                  allAds = combined;
                 } catch (e) {}
                 
                 console.log('Ads Found:', allAds.length);
@@ -2094,6 +2026,7 @@ export default function ChannelFeedDashboard({
                 const baseFiltered = virals.filter((post) => {
                   const matchesTab = isScrollsFeed ? post.format === "video" : post.format === "photo";
                   const notHidden = !hiddenPostIds[post.id];
+                  const isAd = (post as any).isAd; // Don't show ads in organic feed
                   const isSelf =
                     post.name === username ||
                     post.name === `@${username}` ||
@@ -2112,7 +2045,7 @@ export default function ChannelFeedDashboard({
                     post.visibility !== "connections_only" ||
                     isSelf ||
                     isConnection;
-                  return matchesTab && notHidden && visibilityAllowed;
+                  return matchesTab && notHidden && !isAd && visibilityAllowed;
                 });
 
                 const finalFeed = baseFiltered.filter(item => isScrollsFeed ? item.format === 'video' : item.format === 'photo');
@@ -2170,7 +2103,13 @@ export default function ChannelFeedDashboard({
                             </div>
                             <div className="flex flex-col justify-center max-w-[200px]">
                               <div className="flex items-center gap-1.5 w-full">
-                                <span className="text-[16px] font-black text-white hover:text-zinc-300 cursor-pointer tracking-wider truncate whitespace-nowrap max-w-[140px] leading-tight">
+                                <span
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (onOpenDMs) onOpenDMs(adPost.name);
+                                  }}
+                                  className="text-[16px] font-black text-white hover:text-zinc-300 cursor-pointer tracking-wider truncate whitespace-nowrap max-w-[140px] leading-tight"
+                                >
                                   {adName}
                                 </span>
                                 <span className="px-1.5 py-0.5 rounded text-[10px] font-medium tracking-wider bg-white/5 text-white/60 shrink-0">
@@ -2355,7 +2294,8 @@ export default function ChannelFeedDashboard({
                                   {!(
                                     post.name === "you" ||
                                     post.id.startsWith("user-post") ||
-                                    post.name.replace(/^@/, '').toLowerCase() === username.toLowerCase()
+                                    post.name.replace(/^@/, '').toLowerCase() === username.toLowerCase() ||
+                                    dashboardConnectedUsers[post.name.toLowerCase().replace(/^@+/, "")]
                                   ) && (
                                     <>
                                       <button
@@ -2363,13 +2303,9 @@ export default function ChannelFeedDashboard({
                                           handleConnectPost(e, post)
                                         }
                                         className="relative cursor-pointer hover:bg-white/10 rounded-full transition-colors ml-2 flex items-center justify-center p-1"
-                                        title={dashboardConnectedUsers[post.name.toLowerCase().replace(/^@+/, "")] ? "Connected (Known)" : "Disconnected (Unknown)"}
+                                        title="Link (Disconnected)"
                                       >
-                                        {dashboardConnectedUsers[post.name.toLowerCase().replace(/^@+/, "")] ? (
-                                          <Link2 className="w-4 h-4 text-[#0070f3] rotate-45 shrink-0" />
-                                        ) : (
-                                          <Link2Off className="w-4 h-4 text-red-500 rotate-45 shrink-0" />
-                                        )}
+                                        <Link2Off className="w-4 h-4 text-red-500 rotate-45 shrink-0" />
                                       </button>
                                     </>
                                   )}
@@ -2647,7 +2583,8 @@ export default function ChannelFeedDashboard({
                                   post.name === "you" ||
                                   post.id.startsWith("user-post") ||
                                   post.name === username ||
-                                  post.name === `@${username}`
+                                  post.name === `@${username}` ||
+                                  dashboardConnectedUsers[post.name.toLowerCase().replace(/^@+/, "")]
                                 ) && (
                                   <>
                                     <span className="text-[9px] font-black text-white bg-gradient-to-r from-amber-400 to-amber-600 px-1.5 py-[2px] rounded uppercase shadow-[0_0_10px_rgba(251,191,36,0.4)] border border-white/20 tracking-[0.15em] ml-1">
@@ -2656,13 +2593,9 @@ export default function ChannelFeedDashboard({
                                     <button
                                       onClick={(e) => handleConnectPost(e, post)}
                                       className="relative cursor-pointer hover:bg-white/10 rounded-full transition-colors ml-2 flex items-center justify-center p-1"
-                                      title={dashboardConnectedUsers[post.name.toLowerCase().replace(/^@+/, "")] ? "Connected (Known)" : "Disconnected (Unknown)"}
+                                      title="Link (Disconnected)"
                                     >
-                                      {dashboardConnectedUsers[post.name.toLowerCase().replace(/^@+/, "")] ? (
-                                        <Link2 className="w-4 h-4 text-[#0070f3] rotate-45 shrink-0" />
-                                      ) : (
-                                        <Link2Off className="w-4 h-4 text-red-500 rotate-45 shrink-0" />
-                                      )}
+                                      <Link2Off className="w-4 h-4 text-red-500 rotate-45 shrink-0" />
                                     </button>
                                   </>
                                 )}
@@ -2935,7 +2868,21 @@ export default function ChannelFeedDashboard({
                           {/* Main Caption */}
                           {post.detailText && (
                             <div className="text-[11px] leading-relaxed text-zinc-200 mb-2">
-                              <span className="font-bold text-white mr-1.5 hover:underline cursor-pointer">
+                              <span
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const isSelf =
+                                    post.name === "@you" ||
+                                    post.name === "you" ||
+                                    post.id.startsWith("user-post") ||
+                                    post.name === username ||
+                                    post.name === `@${username}`;
+                                  if (!isSelf && onOpenDMs) {
+                                    onOpenDMs(post.name);
+                                  }
+                                }}
+                                className="font-bold text-white mr-1.5 hover:underline cursor-pointer"
+                              >
                                 {post.name === "you" ||
                                 post.name === "@you" ||
                                 post.id.startsWith("user-post") ||

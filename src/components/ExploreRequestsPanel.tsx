@@ -12,6 +12,7 @@ import { VoiceRecordingBar } from './voice/VoiceRecordingBar';
 
 import { getHumanAvatar, getHumanAvatar as getUserAvatar } from '../utils/avatar';
 import { api } from '../services/api';
+import { socket } from '../utils/socket';
 
 interface ExploreRequestsPanelProps {
   onAddConnection: (username: string) => void;
@@ -266,7 +267,7 @@ export default function ExploreRequestsPanel({
   }[]>([]);
   const [inputText, setInputText] = useState('');
   const [isGalleryPopupOpen, setIsGalleryPopupOpen] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [deletePrompt, setDeletePrompt] = useState<string | null>(null);
   const [mediaMenu, setMediaMenu] = useState<string | null>(null);
   const [mediaFlashPermission, setMediaFlashPermission] = useState<string | null>(null);
@@ -599,8 +600,8 @@ export default function ExploreRequestsPanel({
   }, [activeChatUser]);
   
   // Ref for auto scrolling to bottom of chat
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = React.useRef<HTMLDivElement>(null);
+  const messagesContainerRef = React.useRef<HTMLDivElement>(null);
 
   // Camera state
   const [isCameraActive, setIsCameraActive] = useState(false);
@@ -830,9 +831,9 @@ export default function ExploreRequestsPanel({
     scopedStorage.setItem('booran_groups', JSON.stringify(groups));
   }, [groups]);
 
-  const cameraVideoRef = useRef<HTMLVideoElement | null>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const videoChunksRef = useRef<Blob[]>([]);
+  const cameraVideoRef = React.useRef<HTMLVideoElement | null>(null);
+  const mediaRecorderRef = React.useRef<MediaRecorder | null>(null);
+  const videoChunksRef = React.useRef<Blob[]>([]);
 
 
 
@@ -1177,13 +1178,13 @@ export default function ExploreRequestsPanel({
   );
 
   // Check connection state of currently open chat user
-  const checkIsConnected = () => { return true;
+  const checkIsConnected = () => {
     if (!activeChatUser) return false;
-    const handleName = `@${activeChatUser.name.toLowerCase().replace(' ', '_')}`;
-    return connectionList.some(c => 
-      c.toLowerCase() === activeChatUser.name.toLowerCase() || 
-      c.toLowerCase() === handleName.toLowerCase()
-    );
+    const cleanActiveName = activeChatUser.name.toLowerCase().replace(/^@+/, "");
+    return connectionList.some(c => {
+      const cleanC = c.toLowerCase().replace(/^@+/, "");
+      return cleanC === cleanActiveName;
+    });
   };
 
   const handleSendConnectionRequest = async (name: string) => {
@@ -1792,7 +1793,7 @@ export default function ExploreRequestsPanel({
             }
           `}</style>
           {/* Header matches Image 2 top design */}
-          <header className={`sticky top-0 z-30 border-b border-white/5 pt-12 pb-3 px-4 flex items-center justify-between select-none shrink-0 w-full mb-1 bg-transparent`}>
+          <header className={`sticky top-0 z-30 border-b border-white/5 pt-3 pb-3 px-4 flex items-center justify-between select-none shrink-0 w-full mb-1 bg-transparent safe-area-top`}>
             <div className="flex items-center space-x-2.5">
               <button 
                 type="button"
@@ -2483,7 +2484,7 @@ export default function ExploreRequestsPanel({
         /* RENDER SIMPLE LIST SCREEN (IF CHAT ROOM IS CLOSED) */
         <>
           {/* Messages Title above the Search Input box */}
-          <div className="px-1.5 mb-2.5 text-left select-none flex items-center justify-between">
+          <div className="px-1.5 mb-2.5 text-left select-none flex items-center justify-between safe-area-top">
             <h1 className="text-base font-extrabold font-mono tracking-widest text-white uppercase">Messages</h1>
             <button
               onClick={() => {

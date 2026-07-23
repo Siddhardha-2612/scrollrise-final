@@ -70,7 +70,7 @@ export default function ShopiCommerceModule({
   const [currency, setCurrency] = useState('');
   const [location, setLocation] = useState('');
   const [contact, setContact] = useState('');
-  const [publisherName, setPublisherName] = useState('');
+  const [publisherName, setPublisherName] = useState(currentUsername);
   const [isLocating, setIsLocating] = useState(false);
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
@@ -87,9 +87,9 @@ export default function ShopiCommerceModule({
   const [selfieAlignmentIssue, setSelfieAlignmentIssue] = useState(false);
   const [selfieHasWebcam, setSelfieHasWebcam] = useState(true);
 
-  const selfieStreamRef = useRef<MediaStream | null>(null);
-  const selfieVideoRef = useRef<HTMLVideoElement | null>(null);
-  const selfieTimersRef = useRef<NodeJS.Timeout[]>([]);
+  const selfieStreamRef = React.useRef<MediaStream | null>(null);
+  const selfieVideoRef = React.useRef<HTMLVideoElement | null>(null);
+  const selfieTimersRef = React.useRef<NodeJS.Timeout[]>([]);
 
   // Cleanup camera stream and timers on unmount
   useEffect(() => {
@@ -502,7 +502,7 @@ export default function ShopiCommerceModule({
     <div id="shopi-commerce-container" className="flex flex-col h-full bg-transparent text-white pt-4 px-5 relative font-sans select-none overflow-hidden pb-28">
       
       {/* Top Header */}
-      <header className="flex items-center justify-between pb-3 select-none shrink-0" id="shopi-market-header">
+      <header className="flex items-center justify-between pb-3 select-none shrink-0 safe-area-top" id="shopi-market-header">
         <div className="flex items-center space-x-2.5">
           {onBack && (
             <button

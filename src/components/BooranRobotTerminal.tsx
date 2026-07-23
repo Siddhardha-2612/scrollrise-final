@@ -196,7 +196,7 @@ export default function BooranRobotTerminal() {
     <div id="extended-robot-terminal-view" className="flex flex-col min-h-screen bg-black text-white p-5 pb-24 select-none justify-between overflow-x-hidden">
       
       {/* Upper header */}
-      <header id="robot-view-header" className="mb-2">
+      <header id="robot-view-header" className="mb-2 safe-area-top">
         <span className="text-[10px] text-brand-pink font-bold uppercase tracking-widest block font-mono">
           Booran AI-Shield Node
         </span>

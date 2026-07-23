@@ -39,7 +39,7 @@ export default function DMDirectMessageThread({
   });
   const [messages, setMessages] = useState<Message[]>([]);
   const [isSending, setIsSending] = useState(false);
-  const isSendingLock = useRef(false);
+  const isSendingLock = React.useRef(false);
 
   // REAL-TIME MESSAGES FROM BACKEND
   useEffect(() => {
@@ -100,7 +100,7 @@ export default function DMDirectMessageThread({
   const [showAddUserPrompt, setShowAddUserPrompt] = useState(false);
   const [newUsername, setNewUsername] = useState('');
   const [isGalleryPopupOpen, setIsGalleryPopupOpen] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [toast, setToast] = useState<string | null>(null);
 
   const [blockedUsers, setBlockedUsers] = useState<string[]>(() => {
@@ -207,8 +207,8 @@ export default function DMDirectMessageThread({
     setTimeout(() => setToast(null), 2500);
   };
 
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
   const getFormattedTimestamp = (createdAt: number) => {
     const date = new Date(createdAt);
@@ -456,7 +456,7 @@ export default function DMDirectMessageThread({
       )}
 
       {/* AppBar matching Image 2 top design */}
-      <header className="sticky top-0 z-30 bg-transparent border-b border-white/5 pt-12 pb-3 px-4 flex items-center justify-between select-none shrink-0 backdrop-blur-xl">
+      <header className="sticky top-0 z-30 bg-transparent border-b border-white/5 pt-3 pb-3 px-4 flex items-center justify-between select-none shrink-0 backdrop-blur-xl safe-area-top">
         <div className="flex items-center space-x-2.5">
           <button 
             type="button"

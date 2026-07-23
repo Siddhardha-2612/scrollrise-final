@@ -1,6 +1,6 @@
 import { scopedStorage } from "../utils/storage";
 import { trackUserInteractionInInsights } from "../utils/insights";
-import React, { forwardRef, useState, useEffect } from 'react';
+import React, { forwardRef, useState, useEffect, useRef } from 'react';
 import StarDoubleTap from './StarDoubleTap';
 import { X, Send, Link2, Link2Off } from 'lucide-react';
 
@@ -70,7 +70,7 @@ export const VideoFeedItem = forwardRef<HTMLVideoElement, VideoFeedItemProps>(
     const [showProfileWindow, setShowProfileWindow] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
-    const localVideoRef = React.useRef<HTMLVideoElement | null>(null);
+    const localVideoRef = useRef<HTMLVideoElement | null>(null);
 
     React.useEffect(() => {
       const video = localVideoRef.current;

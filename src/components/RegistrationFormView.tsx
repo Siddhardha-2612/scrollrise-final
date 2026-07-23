@@ -1,5 +1,5 @@
 import { scopedStorage } from "../utils/storage";
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { CameraPlusIcon } from './CameraPlusIcon';
 import { Eye, EyeOff, ArrowLeft, ScanFace, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -16,6 +16,7 @@ export default function RegistrationFormView({ onBack, onSuccess }: Registration
   const [password, setPassword] = useState('');
   const [secretCode, setSecretCode] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showSecretCode, setShowSecretCode] = useState(false);
@@ -30,8 +31,8 @@ export default function RegistrationFormView({ onBack, onSuccess }: Registration
   const [selfieAlignmentIssue, setSelfieAlignmentIssue] = useState<boolean>(false);
   const [selfieStream, setSelfieStream] = useState<MediaStream | null>(null);
 
-  const selfieVideoRef = useRef<HTMLVideoElement | null>(null);
-  const selfieStreamRef = useRef<MediaStream | null>(null);
+  const selfieVideoRef = React.useRef<HTMLVideoElement | null>(null);
+  const selfieStreamRef = React.useRef<MediaStream | null>(null);
 
   // Callback ref to reliably attach the webcam stream as soon as the video element mounts
   const selfieVideoRefCallback = (el: HTMLVideoElement | null) => {
@@ -267,6 +268,7 @@ export default function RegistrationFormView({ onBack, onSuccess }: Registration
   const isPasswordError = errorMessage.toLowerCase().includes('password') || (errorMessage.includes('all details') && !password);
   const isSecretCodeError = errorMessage.toLowerCase().includes('secret code') || (errorMessage.includes('all details') && !secretCode);
   const isMobileError = errorMessage.toLowerCase().includes('mobile') || (errorMessage.includes('all details') && !mobileNumber);
+  const isDobError = errorMessage.toLowerCase().includes('date of birth') || (errorMessage.includes('all details') && !dateOfBirth);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -276,9 +278,10 @@ export default function RegistrationFormView({ onBack, onSuccess }: Registration
     const trimmedPass = password.trim();
     const trimmedSecret = secretCode.trim();
     const trimmedMobile = mobileNumber.trim();
-    
-    if (!trimmedUser || !trimmedPass || !trimmedSecret || !trimmedMobile) {
-      setErrorMessage('Please fill in all details, including your mobile number.');
+    const trimmedDob = dateOfBirth.trim();
+
+    if (!trimmedUser || !trimmedPass || !trimmedSecret || !trimmedMobile || !trimmedDob) {
+      setErrorMessage('Please fill in all details, including your mobile number and date of birth.');
       return;
     }
 
@@ -312,6 +315,7 @@ export default function RegistrationFormView({ onBack, onSuccess }: Registration
           password: trimmedPass,
           secretCode: trimmedSecret,
           mobileNumber: trimmedMobile,
+          dateOfBirth: trimmedDob,
           hideDetails: hideDetails,
           selfieUrl: selfieUrl
         })
@@ -328,6 +332,7 @@ export default function RegistrationFormView({ onBack, onSuccess }: Registration
       scopedStorage.setItem('booran_token', data.token);
       scopedStorage.setItem('booran_username', data.username);
       scopedStorage.setItem('booran_personal_mobile', trimmedMobile);
+      scopedStorage.setItem('booran_date_of_birth', trimmedDob);
       scopedStorage.setItem('booran_hide_details', JSON.stringify(hideDetails));
 
       // 3. Success! Move to Dashboard
@@ -339,7 +344,7 @@ export default function RegistrationFormView({ onBack, onSuccess }: Registration
   };
 
   return (
-    <div className="min-h-full bg-black text-white p-6 md:p-12 flex flex-col justify-between">
+    <div className="min-h-full bg-black text-white p-6 md:p-12 flex flex-col justify-between safe-area-top">
       {/* Top action bar */}
       <div className="flex items-center">
         <button 
@@ -481,6 +486,28 @@ export default function RegistrationFormView({ onBack, onSuccess }: Registration
             </div>
           </div>
 
+          {/* DATE OF BIRTH INPUT */}
+          <div className="space-y-2">
+            <label className="flex items-center text-sm font-semibold uppercase tracking-wider text-neutral-200">
+              <span className={isDobError ? 'text-red-500' : 'text-neutral-200'}>
+                Date of Birth
+              </span>
+            </label>
+            <div className={`h-11 bg-white rounded-full flex items-center px-4 border-2 transition-all duration-200 ${
+              isDobError ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)]' : 'border-transparent focus-within:border-brand-pink/50'
+            }`}>
+              <input
+                type="date"
+                value={dateOfBirth}
+                onChange={(e) => {
+                  setDateOfBirth(e.target.value);
+                  setErrorMessage('');
+                }}
+                className="w-full h-full bg-transparent text-black outline-none text-base font-medium"
+              />
+            </div>
+          </div>
+
           <div className="flex items-center gap-3 mt-4 cursor-pointer" onClick={() => setHideDetails(!hideDetails)}>
             <div
               className={`w-6 h-6 flex items-center justify-center transition-colors border ${
@@ -534,7 +561,7 @@ export default function RegistrationFormView({ onBack, onSuccess }: Registration
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black text-white flex flex-col justify-between font-sans select-none p-6 overflow-hidden"
+            className="fixed inset-0 z-50 bg-black text-white flex flex-col justify-between font-sans select-none p-6 overflow-hidden safe-area-top"
           >
             <style>{`
               @keyframes shake {

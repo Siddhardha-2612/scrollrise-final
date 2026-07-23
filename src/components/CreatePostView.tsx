@@ -975,7 +975,7 @@ export default function CreatePostView({
       {/* Responsive Viewport card - Adjusted without rigid frame overlay cutoffs of previous versions */}
       <div
         id="device-frame-clean"
-        className="relative w-full max-w-[360px] min-h-[640px] bg-black rounded-[36px] flex flex-col p-4 border border-neutral-900 shadow-2xl justify-between overflow-visible"
+        className="relative w-full max-w-[360px] min-h-[640px] bg-black rounded-[36px] flex flex-col p-4 border border-neutral-900 shadow-2xl justify-between overflow-visible safe-area-top"
       >
         {/* Upper HUD is completely removed as requested */}
         {/* UPPER PORTABLE RENDER VIEW */}

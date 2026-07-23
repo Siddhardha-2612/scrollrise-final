@@ -1,5 +1,5 @@
 import { scopedStorage } from "./utils/storage";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Wifi,
   Battery,
@@ -51,7 +51,9 @@ import FaceLoginView from "./components/FaceLoginView";
 import { cleanupExpiredData } from "./utils/cleanup";
 import { getHumanAvatar } from './utils/avatar';
 import { socket } from "./utils/socket";
+import { api } from "./services/api";
 import { API_BASE_URL } from "./config";
+import { App as CapacitorApp } from '@capacitor/app';
 
 interface CustomIconProps {
   active: boolean;
@@ -369,10 +371,7 @@ export default function App() {
   };
   const [selectedReelId, setSelectedReelId] = useState<string | null>(null);
   const [cameFromDashboard, setCameFromDashboard] = useState<boolean>(false);
-  const [activeDMUser, setActiveDMUser] = useState<any>({
-    name: "Zack Holmes",
-    avatar: getHumanAvatar("zack"),
-  });
+  const [activeDMUser, setActiveDMUser] = useState<any>(null);
 
   // Notifications Red Dot indicator tracking
   const [hasNotifications, setHasNotifications] = useState<boolean>(() => {
@@ -601,9 +600,22 @@ export default function App() {
     };
   }, []);
 
-  const handleAddReel = (mediaUrl: string, isVideo: boolean, caption?: string) => {
-    // Logic moved to Socket.io and API, but keeping for Prop compatibility
-    console.log("Reel added:", caption);
+  const handleAddReel = async (mediaUrl: string, isVideo: boolean, caption?: string) => {
+    try {
+      const activeName = scopedStorage.getItem("booran_username") || "User";
+      const newPostData = {
+        username: activeName,
+        mediaUrl: mediaUrl,
+        mediaType: isVideo ? "video" : "image",
+        caption: caption || "",
+        musicTitle: "Original Audio",
+        visibility: isPremium ? "public" : "private"
+      };
+      await api.createPost(newPostData);
+      setFeedRefreshTrigger(prev => prev + 1);
+    } catch (e) {
+      console.error("Failed to add reel:", e);
+    }
   };
 
   const updateSessionRack = (name: string) => {
@@ -846,7 +858,48 @@ export default function App() {
     }
   };
 
+  const lastBackPress = useRef<number>(0);
   // Physical Back Button Handler
+  useEffect(() => {
+    const handleBackButton = async () => {
+      // 1. If camera is open, close it first
+      if (isStoriesCameraOpen) {
+        window.dispatchEvent(new CustomEvent("stories-camera-active", { detail: { active: false } }));
+        return;
+      }
+
+      // 2. If we are on dashboard but on a sub-tab, maybe go back to home tab?
+      if (currentRoute === "dashboard" && activeTab !== 0) {
+        setActiveTab(0);
+        return;
+      }
+
+      // 3. Exit logic for dashboard
+      if (currentRoute === "dashboard" || currentRoute === "splash" || currentRoute === "auth-gateway") {
+        const now = Date.now();
+        if (now - lastBackPress.current < 2000) {
+          CapacitorApp.exitApp();
+        } else {
+          lastBackPress.current = now;
+          // show a brief indicator if possible
+        }
+        return;
+      }
+
+      // 4. Otherwise, navigate back
+      popRoute();
+    };
+
+    const backButtonListener = CapacitorApp.addListener('backButton', () => {
+      handleBackButton();
+    });
+
+    return () => {
+      backButtonListener.then(l => l.remove());
+    };
+  }, [currentRoute, activeTab, isStoriesCameraOpen]);
+
+  // Physical Back Button Handler (Legacy/Browser)
   useEffect(() => {
     const handleHardwareBack = (e: PopStateEvent) => {
       if (e.state && e.state.route) {
@@ -875,6 +928,12 @@ export default function App() {
       const cleanName = name.replace(/^@+/, "");
       try {
         await api.requestConnection(cleanName);
+        // Refresh connection list from server immediately for "alive" feel
+        const data = await api.getConnections();
+        const list = data.map((c: any) => c.user1 === username ? c.user2 : c.user1);
+        setConnectionList(list);
+        scopedStorage.setItem("booran_connections_v2", JSON.stringify(list));
+        window.dispatchEvent(new CustomEvent("booran_connections_updated", { detail: { origin: "App" } }));
       } catch (err) {
         console.error("Failed to add connection:", err);
       }
@@ -886,9 +945,13 @@ export default function App() {
     const cleanName = name.replace(/^@+/, "");
 
     try {
-      // In your MongoDB system, we'd have a toggle endpoint or similar
-      // For now, let's just use requestConnection as a simple implementation
       await api.requestConnection(cleanName);
+      // Refresh connection list from server
+      const data = await api.getConnections();
+      const list = data.map((c: any) => c.user1 === username ? c.user2 : c.user1);
+      setConnectionList(list);
+      scopedStorage.setItem("booran_connections_v2", JSON.stringify(list));
+      window.dispatchEvent(new CustomEvent("booran_connections_updated", { detail: { origin: "App" } }));
     } catch (err) {
       console.error("Failed to toggle connection:", err);
     }
@@ -1130,7 +1193,18 @@ export default function App() {
             onBack={popRoute}
             isPremium={isPremium}
             onTogglePremium={setIsPremium}
-            onDeleteAccount={() => {
+            onDeleteAccount={async () => {
+              const token = scopedStorage.getItem("booran_token");
+              if (token) {
+                try {
+                  await fetch(API_BASE_URL + '/api/auth/delete-account', {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                  });
+                } catch (err) {
+                  console.error("Delete account error:", err);
+                }
+              }
               scopedStorage.removeItem("booran_token");
               scopedStorage.removeItem("booran_username");
               setUsername("User");
@@ -1326,9 +1400,8 @@ export default function App() {
   };
 
   const isAuthRoute = ["splash", "auth-gateway", "login", "register"].includes(currentRoute);
-  const isCustomBgRestricted = ["settings-detail", "privacy-panel"].includes(currentRoute);
-  // PRO FEATURE: Background customization only applied if user isPremium
-  const applyCustomBg = isPremium && !isAuthRoute && !isCustomBgRestricted && (globalBgImage || globalBgColor);
+  // User wants background on entire app
+  const applyCustomBg = isPremium && !isAuthRoute && (globalBgImage || globalBgColor);
 
   return (
     <div className="h-[100dvh] bg-neutral-950 font-sans flex flex-col items-center justify-center select-none w-full">
@@ -1353,13 +1426,13 @@ export default function App() {
       `}</style>
       <div
         key={username}
-        className={`relative w-full h-full flex flex-col ${applyCustomBg && globalGlassmorphism ? 'bg-transparent' : 'bg-black'} overflow-hidden`}
+        className={`relative w-full h-full flex flex-col ${applyCustomBg ? 'bg-transparent' : 'bg-black'} overflow-hidden`}
       >
         
 
         {/* Dynamic Inner Router view frame with customized scrollbars */}
         <div
-          className={`relative w-full flex-1 ${applyCustomBg ? 'bg-transparent' : 'bg-black'} flex flex-col justify-between overflow-hidden`}
+          className={`relative w-full flex-1 safe-area-top ${applyCustomBg ? 'bg-transparent' : 'bg-black'} flex flex-col justify-between overflow-hidden`}
         >
           {applyCustomBg && globalBgImage ? (
             <>

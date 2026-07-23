@@ -321,8 +321,8 @@ export default function ReelsView({ onBack, dataSaverEnabled, currentUsername = 
 
   const [mixedReels, setMixedReels] = useState<ReelData[]>(DUMMY_REELS);
   const [userAds, setUserAds] = useState<ReelData[]>([]);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const videoRefs = React.useRef<(HTMLVideoElement | null)[]>([]);
 
   useEffect(() => {
     try {
@@ -666,7 +666,7 @@ export default function ReelsView({ onBack, dataSaverEnabled, currentUsername = 
       <div className="absolute inset-0 pointer-events-none flex flex-col justify-between z-10">
         
         {/* Top Header */}
-        <div className="w-full pt-2 pb-4 px-4 flex items-center justify-between pointer-events-auto shrink-0 relative z-20">
+        <div className="w-full pt-2 pb-4 px-4 flex items-center justify-between pointer-events-auto shrink-0 relative z-20 safe-area-top">
           <button 
             onClick={onBack}
             className="p-2 -ml-2 text-white drop-shadow-md hover:opacity-80 transition-opacity"
@@ -709,13 +709,25 @@ export default function ReelsView({ onBack, dataSaverEnabled, currentUsername = 
                   </button>
                   <div className="h-[1px] w-full bg-white/10" />
                   <button 
-                    onClick={() => {
+                    onClick={async () => {
                       const reelToHide = visibleReels[activeVideo];
                       if (reelToHide) {
+                        // Call API
+                        try {
+                          await api.reportItem({
+                            reportedItemId: reelToHide.id || reelToHide.src,
+                            reportedItemType: 'post',
+                            reason: 'Community Flag'
+                          });
+                        } catch (e) {
+                          console.error("Report failed:", e);
+                        }
+
                         setHiddenVideoUrls(prev => ({ ...prev, [reelToHide.src]: true }));
                         trackUserInteractionInInsights(reelToHide.src, visibleReels[activeVideo]?.user === currentUsername ? "delete" : "report", currentUsername);
                       }
                       setShowReport(false);
+                      triggerToast("Content reported and hidden.");
                     }}
                     className="w-full px-4 py-3 text-red-500 font-semibold text-[15px] text-center hover:bg-white/5 transition-colors"
                   >

@@ -19,7 +19,7 @@ export default function LoginFormView({ onBack, onSuccess, onFaceLoginSelected }
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [recoveryUsername, setRecoveryUsername] = useState('');
   const [recoverySecret, setRecoverySecret] = useState('');
-  const [recoveryMobile, setRecoveryMobile] = useState('');
+  const [recoveryDob, setRecoveryDob] = useState('');
   const [otpRequested, setOtpRequested] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -76,9 +76,10 @@ export default function LoginFormView({ onBack, onSuccess, onFaceLoginSelected }
 
     const trimmedUser = recoveryUsername.trim();
     const trimmedSecret = recoverySecret.trim();
+    const trimmedDob = recoveryDob.trim();
 
-    if (!trimmedUser || !trimmedSecret) {
-      setErrorMessage('Please enter both your username and secret code.');
+    if (!trimmedUser || !trimmedSecret || !trimmedDob) {
+      setErrorMessage('Please enter your username, secret code, and date of birth.');
       return;
     }
 
@@ -87,7 +88,11 @@ export default function LoginFormView({ onBack, onSuccess, onFaceLoginSelected }
       const response = await fetch(API_BASE_URL + '/api/auth/verify-secret-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: trimmedUser, secretCode: trimmedSecret })
+        body: JSON.stringify({
+          username: trimmedUser,
+          secretCode: trimmedSecret,
+          dateOfBirth: trimmedDob
+        })
       });
 
       const data = await response.json();
@@ -152,7 +157,7 @@ export default function LoginFormView({ onBack, onSuccess, onFaceLoginSelected }
   };
 
   return (
-    <div className="min-h-full bg-black text-white p-6 md:p-12 flex flex-col justify-between relative overflow-y-auto">
+    <div className="min-h-full bg-black text-white p-6 md:p-12 flex flex-col justify-between relative overflow-y-auto safe-area-top">
       
       {/* Top action bar */}
       <div className="flex items-center">
@@ -176,7 +181,7 @@ export default function LoginFormView({ onBack, onSuccess, onFaceLoginSelected }
               <KeyRound className="w-6 h-6 text-[#EC5384]" /> Account Recovery
             </h2>
             <p className="text-sm text-neutral-200 mb-6">
-              Enter your username, secret code, and registered mobile number to reset your password.
+              Enter your username, secret code, and registered date of birth to reset your password.
             </p>
 
             {errorMessage && (
@@ -239,24 +244,20 @@ export default function LoginFormView({ onBack, onSuccess, onFaceLoginSelected }
                   </div>
                 </div>
 
-                {/* RECOVERY MOBILE NUMBER */}
+                {/* RECOVERY DATE OF BIRTH */}
                 <div className="space-y-2">
                   <label className="flex items-center text-sm font-semibold uppercase tracking-wider text-neutral-200">
-                    Mobile Number
+                    Date of Birth
                   </label>
                   <div className="h-11 bg-white rounded-full flex items-center px-4 border-2 border-transparent focus-within:border-brand-pink/50">
                     <input
-                      type="tel"
-                      maxLength={11}
-                      value={recoveryMobile}
+                      type="date"
+                      value={recoveryDob}
                       onChange={(e) => {
-                        let val = e.target.value.replace(/\D/g, '');
-                        if (val.length > 11) val = val.substring(0, 11);
-                        setRecoveryMobile(val);
+                        setRecoveryDob(e.target.value);
                         setErrorMessage('');
                       }}
-                      placeholder="Enter mobile number"
-                      className="w-full h-full bg-transparent text-black placeholder-neutral-500 outline-none text-base font-medium tracking-wide"
+                      className="w-full h-full bg-transparent text-black outline-none text-base font-medium"
                     />
                   </div>
                 </div>

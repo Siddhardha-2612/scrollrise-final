@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 
 export default function StarDoubleTap({ onComplete, scale = 1 }: { key?: React.Key; onComplete?: () => void; scale?: number }) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {

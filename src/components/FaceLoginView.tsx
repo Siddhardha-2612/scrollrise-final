@@ -47,9 +47,9 @@ export default function FaceLoginView({ onBack, onSuccess, onGoToManualLogin }: 
   const [hasWebcam, setHasWebcam] = useState(true);
   const [alignmentIssue, setAlignmentIssue] = useState(false);
   
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const timersRef = useRef<any[]>([]);
+  const videoRef = React.useRef<HTMLVideoElement | null>(null);
+  const streamRef = React.useRef<MediaStream | null>(null);
+  const timersRef = React.useRef<any[]>([]);
 
   // Auto start scanner on mount
   useEffect(() => {

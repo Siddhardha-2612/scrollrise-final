@@ -143,7 +143,7 @@ export default function DetailSettingsListView({
   return (
     <div className="min-h-screen bg-black text-white p-6 pb-16 relative overflow-y-auto">
       {/* Centered Settings title with neat back arrow aligned left */}
-      <header className="relative flex items-center justify-center mb-8 pt-2">
+      <header className="relative flex items-center justify-center mb-8 pt-2 safe-area-top">
         <button 
           onClick={onBack}
           className="absolute left-0 p-1.5 rounded-full hover:bg-neutral-800 text-white transition-all cursor-pointer"

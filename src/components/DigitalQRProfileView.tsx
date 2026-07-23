@@ -142,7 +142,7 @@ export default function DigitalQRProfileView({ onBack, username, currentUserAvat
   return (
     <div className="absolute inset-0 bg-neutral-950 z-[100] flex flex-col font-sans animate-fade-in custom-scrollbar overflow-y-auto">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-neutral-950/90 backdrop-blur-md px-4 py-4 flex items-center justify-between border-b border-white/5">
+      <div className="sticky top-0 z-10 bg-neutral-950/90 backdrop-blur-md px-4 py-4 flex items-center justify-between border-b border-white/5 safe-area-top">
         <button
           onClick={onBack}
           className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-white active:scale-95 transition-all"
@@ -215,7 +215,7 @@ export default function DigitalQRProfileView({ onBack, username, currentUserAvat
       {/* Scanner Overlay */}
       {isScanning && (
         <div className="fixed inset-0 bg-black z-[1000] flex flex-col animate-in fade-in duration-300">
-          <div className="absolute top-0 inset-x-0 p-6 flex justify-between items-center z-20 bg-gradient-to-b from-black/80 to-transparent pt-12">
+          <div className="absolute top-0 inset-x-0 p-6 flex justify-between items-center z-20 bg-gradient-to-b from-black/80 to-transparent pt-3 safe-area-top">
             <button 
               onClick={() => setIsScanning(false)}
               className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white backdrop-blur-md active:scale-95 transition-all"

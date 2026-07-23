@@ -332,6 +332,28 @@ async function startServer() {
     } catch (err) { res.status(500).json({ error: (err as any).message }); }
   });
 
+  app.post('/api/posts/:id/like', authenticateToken, async (req: any, res: any) => {
+    try {
+      const post = await Post.findById(req.params.id);
+      if (!post) return res.status(404).json({ error: "Post not found" });
+      const index = post.likes.indexOf(req.user.username);
+      if (index === -1) post.likes.push(req.user.username);
+      else post.likes.splice(index, 1);
+      await post.save();
+      res.json(post);
+    } catch (err) { res.status(500).json({ error: (err as any).message }); }
+  });
+
+  app.post('/api/posts/:id/comment', authenticateToken, async (req: any, res: any) => {
+    try {
+      const post = await Post.findById(req.params.id);
+      if (!post) return res.status(404).json({ error: "Post not found" });
+      post.comments.push({ username: req.user.username, text: req.body.text });
+      await post.save();
+      res.json(post);
+    } catch (err) { res.status(500).json({ error: (err as any).message }); }
+  });
+
   // 3. CONNECTIONS & MESSAGES
   app.get('/api/connections', authenticateToken, async (req: any, res: any) => {
     try {
@@ -402,6 +424,90 @@ async function startServer() {
     if (!req.file) return res.status(400).json({ error: "No file" });
     const audioUrl = `/uploads/${req.file.filename}`;
     res.json({ success: true, audioUrl });
+  });
+
+  // 6. SALES
+  app.get('/api/sales', authenticateToken, async (req: any, res: any) => {
+    try {
+      const sales = await Sale.find().sort({ createdAt: -1 });
+      res.json(sales);
+    } catch (err) { res.status(500).json({ error: (err as any).message }); }
+  });
+
+  app.post('/api/sales', authenticateToken, async (req: any, res: any) => {
+    try {
+      const sale = new Sale({
+        ...req.body,
+        username: req.user.username,
+        title: req.body.title || req.body.name, // Handle client field mismatch
+        description: req.body.description || req.body.extraDetails,
+        mediaUrl: req.body.mediaUrl || req.body.imageUrl
+      });
+      await sale.save();
+      res.json(sale);
+    } catch (err) { res.status(500).json({ error: (err as any).message }); }
+  });
+
+  app.delete('/api/sales/:id', authenticateToken, async (req: any, res: any) => {
+    try {
+      await Sale.findByIdAndDelete(req.params.id);
+      res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: (err as any).message }); }
+  });
+
+  // 7. SHOPI
+  app.get('/api/shopi', authenticateToken, async (req: any, res: any) => {
+    try {
+      const items = await Shopi.find().sort({ createdAt: -1 });
+      res.json(items);
+    } catch (err) { res.status(500).json({ error: (err as any).message }); }
+  });
+
+  app.post('/api/shopi', authenticateToken, async (req: any, res: any) => {
+    try {
+      const item = new Shopi({
+        ...req.body,
+        username: req.user.username,
+        title: req.body.title || req.body.name,
+        description: req.body.description || req.body.extraDetails,
+        mediaUrl: req.body.mediaUrl || req.body.imageUrl
+      });
+      await item.save();
+      res.json(item);
+    } catch (err) { res.status(500).json({ error: (err as any).message }); }
+  });
+
+  app.delete('/api/shopi/:id', authenticateToken, async (req: any, res: any) => {
+    try {
+      await Shopi.findByIdAndDelete(req.params.id);
+      res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: (err as any).message }); }
+  });
+
+  // 8. REPORTS
+  app.post('/api/reports', authenticateToken, async (req: any, res: any) => {
+    try {
+      const report = new Report({ ...req.body, reportedBy: req.user.username });
+      await report.save();
+      res.json(report);
+    } catch (err) { res.status(500).json({ error: (err as any).message }); }
+  });
+
+  // 9. BLOCKS
+  app.post('/api/blocks', authenticateToken, async (req: any, res: any) => {
+    try {
+      const { targetUsername } = req.body;
+      await User.findByIdAndUpdate(req.user.id, { $addToSet: { blockedUsers: targetUsername } });
+      res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: (err as any).message }); }
+  });
+
+  app.delete('/api/blocks/:username', authenticateToken, async (req: any, res: any) => {
+    try {
+      const { username } = req.params;
+      await User.findByIdAndUpdate(req.user.id, { $pull: { blockedUsers: username } });
+      res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: (err as any).message }); }
   });
 
   // ---- VITE / SPA SERVING ----

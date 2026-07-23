@@ -83,7 +83,7 @@ export default function PrivacySettingsView({
     scopedStorage.setItem('booran_hide_details', nextVal.toString());
 
     try {
-      await fetch(API_BASE_URL + '/api/auth/update-privacy', {
+      const response = await fetch(API_BASE_URL + '/api/auth/update-privacy', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -91,9 +91,14 @@ export default function PrivacySettingsView({
         },
         body: JSON.stringify({ hideDetails: nextVal })
       });
-      triggerToast(nextVal ? "Profile details hidden from public." : "Profile details now visible.");
+      if (response.ok) {
+        triggerToast(nextVal ? "Profile details hidden." : "Profile details visible.");
+      } else {
+        throw new Error("Failed to update");
+      }
     } catch (err) {
       console.error("Failed to update hideDetails", err);
+      triggerToast("Failed to sync privacy setting.");
     }
   };
 
@@ -103,7 +108,7 @@ export default function PrivacySettingsView({
     scopedStorage.setItem('booran_is_private', nextVal.toString());
 
     try {
-      await fetch(API_BASE_URL + '/api/auth/update-privacy', {
+      const response = await fetch(API_BASE_URL + '/api/auth/update-privacy', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -111,9 +116,14 @@ export default function PrivacySettingsView({
         },
         body: JSON.stringify({ isPrivate: nextVal })
       });
-      triggerToast(nextVal ? "Account set to PRIVATE. You are hidden from search." : "Account set to PUBLIC.");
+      if (response.ok) {
+        triggerToast(nextVal ? "Account set to PRIVATE." : "Account set to PUBLIC.");
+      } else {
+        throw new Error("Failed to update");
+      }
     } catch (err) {
       console.error("Failed to update isPrivate", err);
+      triggerToast("Failed to sync privacy setting.");
     }
   };
 
@@ -170,8 +180,8 @@ export default function PrivacySettingsView({
   }, [toast]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-black text-white p-6 pb-24 relative select-none overflow-y-auto">
-      <header className="mb-6 flex items-center gap-3">
+    <div className="flex flex-col min-h-screen bg-transparent text-white p-6 pb-24 relative select-none overflow-y-auto">
+      <header className="mb-6 flex items-center gap-3 safe-area-top">
         <button 
           onClick={onBack}
           className="p-1.5 rounded-full hover:bg-neutral-800 text-white transition-all cursor-pointer"

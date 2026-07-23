@@ -126,11 +126,33 @@ body, html, * {
   -ms-overflow-style: none !important;
 }
 
-/* Hide navigation dock bar in story player view mode */
-body.viewing-stories #navigation-dock-bar,
-body.viewing-stories #emulator-status-bar,
-body.viewing-modal #navigation-dock-bar {
-  display: none !important;
+/* Ensure content clears the system status bar and home indicator on mobile devices */
+/* Capacitor injections take priority over standard CSS env() due to some Android web engine bugs */
+:root {
+  --safe-area-inset-top: var(--capacitor-safe-area-top, env(safe-area-inset-top, 0px));
+  --safe-area-inset-bottom: var(--capacitor-safe-area-bottom, env(safe-area-inset-bottom, 0px));
+  --safe-area-inset-left: var(--capacitor-safe-area-left, env(safe-area-inset-left, 0px));
+  --safe-area-inset-right: var(--capacitor-safe-area-right, env(safe-area-inset-right, 0px));
+}
+
+.safe-area-top {
+  padding-top: var(--safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: var(--safe-area-inset-bottom);
+}
+
+.safe-area-x {
+  padding-left: var(--safe-area-inset-left);
+  padding-right: var(--safe-area-inset-right);
+}
+
+/* Base body styles */
+body {
+  margin: 0;
+  padding: 0;
+  /* Use viewport-fit=cover in index.html to enable these */
 }
 
 

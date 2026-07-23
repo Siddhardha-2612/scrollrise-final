@@ -9,7 +9,7 @@ interface AuthGatewayViewProps {
 
 export default function AuthGatewayView({ onLoginSelected, onRegisterSelected, onFaceLoginSelected, onBackToExisting }: AuthGatewayViewProps) {
   return (
-    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 relative overflow-hidden select-none">
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 relative overflow-hidden select-none safe-area-top">
       {/* Background Subtle White Blurs (Monochrome elegance) */}
       <div className="absolute top-1/3 left-1/3 w-72 h-72 bg-white/5 rounded-full blur-[90px]" />
       <div className="absolute bottom-1/3 right-1/3 w-72 h-72 bg-white/2.5 rounded-full blur-[90px]" />

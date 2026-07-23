@@ -27,9 +27,9 @@ export default function SalesMarketView({ onBack, currentUsername = "User" }: Sa
   const [selfieAlignmentIssue, setSelfieAlignmentIssue] = useState(false);
   const [selfieHasWebcam, setSelfieHasWebcam] = useState(true);
 
-  const selfieStreamRef = useRef<MediaStream | null>(null);
-  const selfieVideoRef = useRef<HTMLVideoElement | null>(null);
-  const selfieTimersRef = useRef<NodeJS.Timeout[]>([]);
+  const selfieStreamRef = React.useRef<MediaStream | null>(null);
+  const selfieVideoRef = React.useRef<HTMLVideoElement | null>(null);
+  const selfieTimersRef = React.useRef<NodeJS.Timeout[]>([]);
 
   // Cleanup camera stream and timers on unmount
   useEffect(() => {
@@ -239,8 +239,8 @@ export default function SalesMarketView({ onBack, currentUsername = "User" }: Sa
   const [newExtraDetails, setNewExtraDetails] = useState('');
   const [newImageUrl, setNewImageUrl] = useState<string | null>(null);
   const [newSelfieUrl, setNewSelfieUrl] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const selfieInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const selfieInputRef = React.useRef<HTMLInputElement>(null);
 
   const CURRENT_USER_ID = currentUsername;
 
@@ -911,7 +911,7 @@ export default function SalesMarketView({ onBack, currentUsername = "User" }: Sa
   return (
     <div className="min-h-full bg-transparent text-white p-5 pt-12 font-sans select-none pb-24 h-full overflow-y-auto custom-scrollbar">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8 relative h-8">
+      <div className="flex items-center justify-between mb-8 relative h-8 safe-area-top">
         {(showWishlistOnly || showMyUploadsOnly) ? (
           <>
             <button
@@ -1123,24 +1123,6 @@ export default function SalesMarketView({ onBack, currentUsername = "User" }: Sa
                 )}
                 {product.username === currentUsername && (
                   <div className="flex items-center gap-1.5">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setEditingProductId(product.id);
-                        setNewTitle(product.name);
-                        setNewPrice(product.price);
-                        setNewCurrency(product.currency);
-                        setNewCountry(product.country);
-                        setNewPlace(product.place);
-                        setContactNumber(product.contact);
-                        setNewExtraDetails(product.extraDetails);
-                        setCategory(product.category);
-                        setIsAddingDetails(true);
-                      }}
-                      className="p-1 px-[7px] py-[5px] rounded-lg bg-[#141416] hover:bg-neutral-800 border border-white/5 text-neutral-400 hover:text-white active:scale-90 transition-all flex items-center justify-center shrink-0 cursor-pointer h-7 w-7"
-                    >
-                      <Pencil className="w-3.5 h-3.5" />
-                    </button>
                     <button
                       onClick={async (e) => {
                         e.stopPropagation();

@@ -155,16 +155,12 @@ export default function ConnectionsHubView({
   const handleAction = (item: any) => {
     if (activeTab === 'suggests') {
       if (sentRequests.includes(item.id)) return; // Already sent
-      triggerToast(`Sent connection invitation to ${item.name}!`);
+
+      if (onAddConnection) {
+        onAddConnection(item.name);
+      }
       setSentRequests(prev => [...prev, item.id]);
-      
-      // Simulate target user accepting request after a delay
-      setTimeout(() => {
-        if (onAddConnection) {
-          onAddConnection(item.name);
-        }
-        triggerToast(`${item.name} accepted your request!`);
-      }, 2500);
+      triggerToast(`Connection request sent to ${item.name}!`);
     } else if (activeTab === 'Connects') {
       setConnectsList(prev => prev.map(c => 
         c.id === item.id ? { ...c, requested: false } : c
@@ -172,14 +168,12 @@ export default function ConnectionsHubView({
       if (onAddConnection) {
         onAddConnection(item.name);
       }
-      triggerToast(`Approved link for ${item.name}!`);
+      triggerToast(`Accepted connection from ${item.name}!`);
     } else if (activeTab === 'Connections') {
       if (onToggleConnection) {
         onToggleConnection(item.name);
-        triggerToast(`Removed connection: ${item.name}`);
+        triggerToast(`Unconnected from ${item.name}`);
       }
-    } else {
-      triggerToast(`Viewing details for ${item.name}`);
     }
   };
 
@@ -266,7 +260,7 @@ export default function ConnectionsHubView({
     <div className="flex flex-col min-h-screen bg-black text-white px-6 pb-6 pt-12 font-sans relative select-none overflow-hidden">
       
       {/* Header bar with Back trigger and centered DETAILS title */}
-      <div className="flex items-center justify-between mb-6 relative z-10">
+      <div className="flex items-center justify-between mb-6 relative z-10 safe-area-top">
         <button
           onClick={onBack}
           className="flex items-center justify-center w-10 h-10 text-white transition-all cursor-pointer bg-white/10 hover:bg-white/20 rounded-full -ml-2"
@@ -387,7 +381,7 @@ export default function ConnectionsHubView({
               : 'text-neutral-400 hover:text-neutral-200'
           }`}
         >
-          More
+          Details
         </button>
       </div>
 

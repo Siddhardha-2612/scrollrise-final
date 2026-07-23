@@ -7,6 +7,7 @@ export const getToken = () => {
 
 const headers = () => ({
   'Content-Type': 'application/json',
+  'Accept': 'application/json',
   'Authorization': 'Bearer ' + getToken(),
   'X-Username': scopedStorage.getItem('booran_username') || 'User'
 });
@@ -16,7 +17,18 @@ const handleResponse = async (res: Response) => {
     console.warn('Unauthorized request, ignoring redirect to login screen');
     throw new Error('Unauthorized');
   }
-  return res.json();
+
+  const contentType = res.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
+    return res.json();
+  }
+
+  const text = await res.text();
+  if (res.status >= 400) {
+    throw new Error(`Server error (${res.status}): ${text.substring(0, 100)}`);
+  }
+
+  throw new Error('Expected JSON response but received: ' + (text.startsWith('<!DOCTYPE') ? 'HTML page' : 'text'));
 };
 
 const apiFetch = (url: string, options: RequestInit = {}) => {

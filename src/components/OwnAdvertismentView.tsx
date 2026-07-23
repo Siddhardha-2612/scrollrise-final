@@ -25,7 +25,7 @@ export default function OwnAdvertismentView({
   const [selectedAction, setSelectedAction] = useState('APPLY');
   const [showValidationErrors, setShowValidationErrors] = useState(false);
   const [isPreviewMuted, setIsPreviewMuted] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (showHistory) {
@@ -150,7 +150,7 @@ export default function OwnAdvertismentView({
     }
   };
 
-  const handlePost = () => {
+  const handlePost = async () => {
     const trimmedLink = link.trim();
     const trimmedContact = contact.trim();
 
@@ -171,42 +171,49 @@ export default function OwnAdvertismentView({
       return;
     }
 
-    // Save to scopedStorage as an object
+    setIsProcessing(true);
+
+    // Save to backend via createPost
     try {
-      const allAds = getAds();
-      
-      const newAd = {
-        id: Date.now().toString(),
-        type: 'ad',
+      const adPayload = {
+        username: currentUsername,
+        mediaUrl: mediaData,
         mediaType: mediaType === 'photo' ? 'image' : 'video',
-        src: mediaData,
+        caption: 'Sponsored Ad',
         link: link,
         contact: contact,
         action: selectedAction,
-        ownerId: currentUsername,
-        createdAt: Date.now()
+        isAd: true,
+        visibility: 'public'
       };
 
-      console.log('Saving to booran_ads_v3:', newAd);
+      await api.createPost(adPayload);
+
+      // Also save to scopedStorage for local instant update
+      const allAds = getAds();
+      const newAd = {
+        ...adPayload,
+        id: Date.now().toString(),
+        src: mediaData,
+        createdAt: Date.now()
+      };
       allAds.unshift(newAd);
       saveAds(allAds);
       
       setShowValidationErrors(false);
-
-      // Dispatch event to notify feed to update
       window.dispatchEvent(new Event('booran_posts_updated'));
       window.dispatchEvent(new Event('adsUpdated'));
-    } catch (error) {
-      console.warn("Storage quota exceeded or error saving ad:", error);
-      alert("Notice: File may be too large to save fully in local browser storage.");
-    }
 
-    if (onPostAd) {
-      onPostAd('Ad Post', mediaData, mediaType, link, contact);
+      if (onPostAd) {
+        onPostAd('Ad Post', mediaData, mediaType, link, contact);
+      }
+      onBack();
+    } catch (error) {
+      console.warn("Failed to post ad to backend:", error);
+      alert("Failed to post advertisement to server. Check your connection.");
+    } finally {
+      setIsProcessing(false);
     }
-    
-    // Go back
-    onBack();
   };
 
   if (showHistory) {

@@ -48,7 +48,7 @@ export default function StudioMediaEditor() {
   // Comparison state
   const [compareMode, setCompareMode] = useState<boolean>(false);
   const [compareProgress, setCompareProgress] = useState<number>(50); // Slid percentages
-  const isHoldingBefore = useRef<boolean>(false);
+  const isHoldingBefore = React.useRef<boolean>(false);
   const [isHolding, setIsHolding] = useState<boolean>(false);
 
   // Active filter templates
@@ -92,7 +92,7 @@ export default function StudioMediaEditor() {
   const [selectedSky, setSelectedSky] = useState<'original' | 'nebula' | 'sunset' | 'aurora' | 'storm'>('original');
   const [objectRemovalActive, setObjectRemovalActive] = useState<boolean>(false);
   const [brushedPoints, setBrushedPoints] = useState<{ x: number; y: number }[]>([]);
-  const isPaintingBrush = useRef<boolean>(false);
+  const isPaintingBrush = React.useRef<boolean>(false);
 
   // Custom presets
   const [customPresets, setCustomPresets] = useState<CustomPreset[]>([
@@ -117,8 +117,8 @@ export default function StudioMediaEditor() {
   const [notification, setNotification] = useState<string | null>(null);
 
   // Refs
-  const editorWorkspaceRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const editorWorkspaceRef = React.useRef<HTMLDivElement>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // Triggers self-dismissing notification banner
   const triggerNotification = (text: string) => {

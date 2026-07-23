@@ -316,37 +316,38 @@ export default function VendorTrackerView({ onBack, currentUsername }: { onBack:
     };
 
     return (
-    <div className="h-full flex flex-col bg-transparent text-white">
-      <div className="flex items-center px-4 pt-10 pb-2 h-[80px]">
-        <button onClick={onBack} className="w-10 h-10 flex items-center justify-center text-white -ml-2 rounded-full hover:bg-neutral-800 active:scale-95 transition-all">
-          <ArrowLeft className="w-6 h-6" />
-        </button>
-        <span className="font-normal text-[22px] ml-1 tracking-wide">Pin My Stall</span>
-      </div>
+      <div className="h-full flex flex-col bg-transparent text-white">
+        <div className="flex items-center px-4 pt-10 pb-2 h-[80px] safe-area-top">
+          <button onClick={onBack} className="w-10 h-10 flex items-center justify-center text-white -ml-2 rounded-full hover:bg-neutral-800 active:scale-95 transition-all">
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+          <span className="font-normal text-[22px] ml-1 tracking-wide">Pin My Stall</span>
+        </div>
 
-      <div className="flex-1 flex items-center justify-center gap-6 px-6 pb-20">
-        <button 
-          onClick={() => handleSelectMode('Customer')} 
-          className="w-[140px] h-[140px] bg-black/20 backdrop-blur-md rounded-[32px] flex flex-col items-center justify-center gap-5 border border-white/10 hover:bg-black/20 active:scale-95 transition-all group"
-        >
-          <div className="text-white group-hover:scale-105 transition-transform duration-300">
-            <Search className="w-12 h-12 stroke-[1.5]" />
-          </div>
-          <span className="text-[20px] font-normal tracking-wide">Search</span>
-        </button>
+        <div className="flex-1 flex items-center justify-center gap-6 px-6 pb-20">
+          <button
+            onClick={() => handleSelectMode('Customer')}
+            className="w-[140px] h-[140px] bg-black/20 backdrop-blur-md rounded-[32px] flex flex-col items-center justify-center gap-5 border border-white/10 hover:bg-black/20 active:scale-95 transition-all group"
+          >
+            <div className="text-white group-hover:scale-105 transition-transform duration-300">
+              <Search className="w-12 h-12 stroke-[1.5]" />
+            </div>
+            <span className="text-[20px] font-normal tracking-wide">Search</span>
+          </button>
 
-        <button 
-          onClick={() => handleSelectMode('Vendor')} 
-          className="w-[140px] h-[140px] bg-black/20 backdrop-blur-md rounded-[32px] flex flex-col items-center justify-center gap-5 border border-white/10 hover:bg-black/20 active:scale-95 transition-all group"
-        >
-          <div className="text-white group-hover:scale-105 transition-transform duration-300">
-            <MapPin className="w-12 h-12 stroke-[1.5]" />
-          </div>
-          <span className="text-[20px] font-normal tracking-wide">Pin</span>
-        </button>
+          <button
+            onClick={() => handleSelectMode('Vendor')}
+            className="w-[140px] h-[140px] bg-black/20 backdrop-blur-md rounded-[32px] flex flex-col items-center justify-center gap-5 border border-white/10 hover:bg-black/20 active:scale-95 transition-all group"
+          >
+            <div className="text-white group-hover:scale-105 transition-transform duration-300">
+              <MapPin className="w-12 h-12 stroke-[1.5]" />
+            </div>
+            <span className="text-[20px] font-normal tracking-wide">Pin</span>
+          </button>
+        </div>
       </div>
-    </div>
-  )};
+    );
+  };
 
   const ProfileScreen = () => {
     const [name, setName] = useState(currentUsername || '');
@@ -355,9 +356,9 @@ export default function VendorTrackerView({ onBack, currentUsername }: { onBack:
     const [type, setType] = useState<'Customer' | 'Vendor'>('Customer');
 
     return (
-      <div className="h-full flex flex-col bg-white text-neutral-900">
+      <div className="h-full flex flex-col bg-transparent text-neutral-900">
         <Header title="Create Profile" onBackClick={onBack} />
-        <div className="flex-1 p-6 space-y-6">
+        <div className="flex-1 p-6 space-y-6 bg-white/10 backdrop-blur-md rounded-t-3xl mt-4">
           <div className="flex justify-center py-6">
             <div className="w-24 h-24 bg-neutral-100 rounded-full border-4 border-white shadow-lg flex items-center justify-center text-neutral-400">
               <UserIcon className="w-10 h-10" />
@@ -406,7 +407,7 @@ export default function VendorTrackerView({ onBack, currentUsername }: { onBack:
 
     return (
       <div className="h-full flex flex-col bg-transparent text-white">
-        <div className="flex items-center px-2 pt-10 pb-3 shrink-0 bg-transparent text-white">
+        <div className="flex items-center px-2 pt-10 pb-3 shrink-0 bg-transparent text-white safe-area-top">
           <button onClick={() => { setScreen('choice'); setLocationGranted(false); }} className="w-10 h-10 flex items-center justify-center text-white mr-1 rounded-full hover:bg-neutral-800 active:scale-95 transition-all">
             <ArrowLeft className="w-6 h-6" />
           </button>
@@ -419,9 +420,9 @@ export default function VendorTrackerView({ onBack, currentUsername }: { onBack:
         </div>
 
         <div className="flex-1 relative bg-slate-100 z-0">
-          {(new Date().getHours() < 5 || new Date().getHours() >= 22) && (
+          {(new Date().getHours() < 4 || new Date().getHours() >= 24) && (
             <div className="absolute top-4 left-4 right-4 bg-amber-500 text-neutral-900 px-4 py-2.5 rounded-2xl text-center text-xs font-bold shadow-md z-[500] flex items-center justify-center gap-1.5 border border-amber-600">
-              <span>⚠️ Service hours: 5:00 AM - 10:00 PM. Stalls are currently hidden.</span>
+              <span>⚠️ Service hours: 4:00 AM - 12:00 AM. Stalls are currently hidden.</span>
             </div>
           )}
           <MapContainer key="customer-home-map-container" center={[myLocation.lat, myLocation.lng]} zoom={13} style={{ height: '100%', width: '100%' }} ref={mapRef} zoomControl={false} attributionControl={false}>
@@ -535,7 +536,7 @@ export default function VendorTrackerView({ onBack, currentUsername }: { onBack:
   };
 
   const VendorHomeMap = () => {
-    const mapRef = useRef<L.Map>(null);
+    const mapRef = React.useRef<L.Map>(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearching, setIsSearching] = useState(false);
@@ -583,8 +584,8 @@ export default function VendorTrackerView({ onBack, currentUsername }: { onBack:
     const handlePin = async () => {
       const nowTime = new Date();
       const currentHr = nowTime.getHours();
-      if (currentHr < 5 || currentHr >= 22) {
-        setValidationError("Service hours are 5:00 AM to 10:00 PM. You cannot pin stalls at this time.");
+      if (currentHr < 4 || currentHr >= 24) {
+        setValidationError("Service hours are 4:00 AM to 12:00 AM. You cannot pin stalls at this time.");
         return;
       }
       if (!inputDesc.trim()) {
@@ -667,7 +668,7 @@ export default function VendorTrackerView({ onBack, currentUsername }: { onBack:
     return (
       <div className="h-full flex flex-col bg-transparent text-white relative overflow-hidden">
         {/* Top Header Floating */}
-        <div className="absolute top-0 left-0 right-0 z-[600] flex items-center justify-between px-4 pt-10 pb-4 bg-gradient-to-b from-black/80 via-black/40 to-transparent w-full pointer-events-none">
+        <div className="absolute top-0 left-0 right-0 z-[600] flex items-center justify-between px-4 pt-10 pb-4 bg-gradient-to-b from-black/80 via-black/40 to-transparent w-full pointer-events-none safe-area-top">
           <div className="flex items-center gap-3">
             <button onClick={() => { setScreen('choice'); setLocationGranted(false); }} className="pointer-events-auto flex items-center justify-center p-1 -ml-1 rounded-full active:scale-95 transition-all text-white drop-shadow-md">
                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
@@ -697,9 +698,9 @@ export default function VendorTrackerView({ onBack, currentUsername }: { onBack:
         )}
 
         <div className="flex-1 relative bg-slate-900 z-0">
-          {(new Date().getHours() < 5 || new Date().getHours() >= 22) && (
+          {(new Date().getHours() < 4 || new Date().getHours() >= 24) && (
             <div className="absolute top-4 left-4 right-4 bg-amber-500 text-neutral-900 px-4 py-2.5 rounded-2xl text-center text-xs font-bold shadow-md z-[500] flex items-center justify-center gap-1.5 border border-amber-600">
-              <span>⚠️ Service hours: 5:00 AM - 10:00 PM. Stalls are currently hidden.</span>
+              <span>⚠️ Service hours: 4:00 AM - 12:00 AM. Stalls are currently hidden.</span>
             </div>
           )}
           <MapContainer key="vendor-home-map-container" center={[myLocation.lat, myLocation.lng]} zoom={13} style={{ height: '100%', width: '100%' }} ref={mapRef} zoomControl={false} attributionControl={false}>
@@ -910,9 +911,9 @@ export default function VendorTrackerView({ onBack, currentUsername }: { onBack:
     const [close, setClose] = useState('22:00');
 
     return (
-      <div className="h-full flex flex-col bg-white text-neutral-900">
+      <div className="h-full flex flex-col bg-transparent text-neutral-900">
         <Header title="Create Pin Detail" onBackClick={() => setScreen('vendorHome')} />
-        <div className="flex-1 overflow-y-auto p-6 space-y-5">
+        <div className="flex-1 overflow-y-auto p-6 space-y-5 bg-white/10 backdrop-blur-md rounded-t-3xl mt-4">
            <div>
               <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block mb-1">Stall Name</label>
               <input value={stallName} onChange={e => setStallName(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-blue-500 outline-none" />
@@ -948,9 +949,9 @@ export default function VendorTrackerView({ onBack, currentUsername }: { onBack:
 
   const CheckoutScreen = () => {
     return (
-      <div className="h-full flex flex-col bg-slate-50 text-neutral-900">
+      <div className="h-full flex flex-col bg-transparent text-neutral-900">
         <Header title="Checkout" onBackClick={() => setScreen('createPin')} />
-        <div className="flex-1 p-6 flex flex-col">
+        <div className="flex-1 p-6 flex flex-col bg-white/10 backdrop-blur-md rounded-t-3xl mt-4">
           <div className="bg-white rounded-3xl p-8 mb-6 text-center shadow-sm border border-neutral-100 flex flex-col items-center">
              <CreditCard className="w-12 h-12 text-blue-500 mb-3" />
              <p className="text-neutral-500 font-medium mb-1 uppercase tracking-widest text-xs">Payment Gateway</p>
@@ -1041,9 +1042,9 @@ export default function VendorTrackerView({ onBack, currentUsername }: { onBack:
   const ReportFormScreen = () => {
     const [reason, setReason] = useState('');
     return (
-      <div className="h-full flex flex-col bg-white text-neutral-900">
+      <div className="h-full flex flex-col bg-transparent text-neutral-900">
         <Header title="Report Pin Form" onBackClick={() => setScreen('customerHome')} />
-        <div className="flex-1 p-6 space-y-6">
+        <div className="flex-1 p-6 space-y-6 bg-white/10 backdrop-blur-md rounded-t-3xl mt-4">
            <div>
               <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block mb-1">Reason for Report</label>
               <select className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 focus:ring-2 focus:ring-blue-500 outline-none appearance-none cursor-pointer">
