@@ -32,10 +32,14 @@ export default function ShopiCommerceModule({
     const fetchShopi = async () => {
       try {
         const data = await api.getShopi();
-        setLocalProducts(data.map((d: any) => ({
+        const mapped = data.map((d: any) => ({
           ...d,
           id: d._id
-        })));
+        }));
+        // Deduplicate incoming data to prevent display issues
+        setLocalProducts(mapped.filter((v: any, i: number, a: any[]) =>
+          a.findIndex((t: any) => t.id === v.id) === i
+        ));
       } catch (err) {
         console.error("Failed to fetch shopi:", err);
       }
@@ -476,7 +480,12 @@ export default function ShopiCommerceModule({
         setToastMessage("Update simulation successful.");
       } else {
         const response = await api.createShopi(payload);
-        setLocalProducts(prev => [{ ...response, id: response._id }, ...prev]);
+        const mappedResponse = { ...response, id: response._id };
+        // Deduplicate by ID to ensure manual add doesn't clash with re-fetch
+        setLocalProducts(prev => {
+          if (prev.some(p => p.id === mappedResponse.id)) return prev;
+          return [mappedResponse, ...prev];
+        });
         setToastMessage(`Successful list: '${itemTitle}' published under manual peer trade parameters!`);
       }
     } catch (error: any) {

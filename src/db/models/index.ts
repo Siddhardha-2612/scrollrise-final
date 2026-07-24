@@ -15,7 +15,9 @@ const UserSchema = new Schema({
   glassmorphism: { type: Boolean, default: false },
   hasSalesSub: { type: Boolean, default: false },
   selfieUrl: { type: String, default: "" },
-  blockedUsers: [{ type: String }]
+  blockedUsers: [{ type: String }],
+  dailySalesCount: { type: Number, default: 0 },
+  lastSaleUploadDate: { type: Date }
 }, { timestamps: true });
 
 export const User = mongoose.model('User', UserSchema);
@@ -95,11 +97,22 @@ export const Group = mongoose.model('Group', GroupSchema);
 
 // Sale Model
 const SaleSchema = new Schema({
+  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
   username: { type: String, required: true, index: true },
   title: { type: String, required: true },
   description: { type: String },
-  price: { type: Number },
-  mediaUrl: { type: String },
+  price: { type: Number, required: true },
+  mediaUrl: { type: String, required: true },
+  images: [{ type: String }],
+  category: { type: String, required: true },
+  currency: { type: String, required: true },
+  contact: { type: String, required: true },
+  sellerSelfie: { type: String, required: true },
+  storeName: { type: String },
+  country: { type: String, required: true },
+  place: { type: String, required: true },
+  extraDetails: { type: String },
+  paymentStatus: { type: String, default: 'pending' },
   createdAt: { type: Date, default: Date.now, expires: 172800 } // 48 hours
 }, { timestamps: true });
 
@@ -112,6 +125,11 @@ const ShopiSchema = new Schema({
   description: { type: String },
   price: { type: Number },
   mediaUrl: { type: String },
+  sellerSelfie: { type: String },
+  storeName: { type: String },
+  currency: { type: String },
+  contact: { type: String },
+  location: { type: String },
   createdAt: { type: Date, default: Date.now, expires: 172800 } // 48 hours
 }, { timestamps: true });
 

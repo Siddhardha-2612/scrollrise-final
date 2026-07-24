@@ -430,26 +430,79 @@ async function startServer() {
   app.get('/api/sales', authenticateToken, async (req: any, res: any) => {
     try {
       const sales = await Sale.find().sort({ createdAt: -1 });
-      res.json(sales);
+      const mappedSales = sales.map((sale: any) => ({
+        ...sale.toObject(),
+        id: sale._id,
+        name: sale.title,
+        imageUrl: sale.mediaUrl,
+        extraDetails: sale.description
+      }));
+      res.json(mappedSales);
     } catch (err) { res.status(500).json({ error: (err as any).message }); }
   });
 
   app.post('/api/sales', authenticateToken, async (req: any, res: any) => {
     try {
+      // 1. Check daily limit (3 uploads/day)
+      const user = await User.findById(req.user.id);
+      if (!user) return res.status(404).json({ error: "User not found" });
+
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      if (!user.lastSaleUploadDate || user.lastSaleUploadDate < today) {
+        user.dailySalesCount = 0;
+        user.lastSaleUploadDate = now;
+      }
+
+      if (user.dailySalesCount >= 3) {
+        return res.status(429).json({ error: "Daily upload limit reached." });
+      }
+
+      // 2. Placeholder Payment Validation (99 Dinars)
+      // In a real app, we'd verify a transaction ID here.
+      if (!req.body.paymentVerified) {
+        return res.status(402).json({ error: "Payment of 99 Dinars required to publish." });
+      }
+
       const sale = new Sale({
         ...req.body,
+        userId: req.user.id,
         username: req.user.username,
-        title: req.body.title || req.body.name, // Handle client field mismatch
-        description: req.body.description || req.body.extraDetails,
-        mediaUrl: req.body.mediaUrl || req.body.imageUrl
+        title: req.body.name,
+        description: req.body.extraDetails,
+        mediaUrl: req.body.imageUrl,
+        paymentStatus: 'completed'
       });
+
       await sale.save();
-      res.json(sale);
+
+      // Update user upload count
+      user.dailySalesCount += 1;
+      user.lastSaleUploadDate = now;
+      await user.save();
+
+      const mappedSale = {
+        ...sale.toObject(),
+        id: sale._id,
+        name: sale.title,
+        imageUrl: sale.mediaUrl,
+        extraDetails: sale.description
+      };
+      res.json(mappedSale);
     } catch (err) { res.status(500).json({ error: (err as any).message }); }
   });
 
   app.delete('/api/sales/:id', authenticateToken, async (req: any, res: any) => {
     try {
+      const sale = await Sale.findById(req.params.id);
+      if (!sale) return res.status(404).json({ error: "Sale not found" });
+
+      // Allow deletion if ID matches OR username matches (fallback)
+      if (sale.userId?.toString() !== req.user.id && sale.username !== req.user.username) {
+        return res.status(403).json({ error: "Unauthorized" });
+      }
+
       await Sale.findByIdAndDelete(req.params.id);
       res.json({ success: true });
     } catch (err) { res.status(500).json({ error: (err as any).message }); }
@@ -459,7 +512,15 @@ async function startServer() {
   app.get('/api/shopi', authenticateToken, async (req: any, res: any) => {
     try {
       const items = await Shopi.find().sort({ createdAt: -1 });
-      res.json(items);
+      const mappedItems = items.map((item: any) => ({
+        ...item.toObject(),
+        id: item._id,
+        publisherName: item.username,
+        name: item.title,
+        imageUrl: item.mediaUrl,
+        extraDetails: item.description
+      }));
+      res.json(mappedItems);
     } catch (err) { res.status(500).json({ error: (err as any).message }); }
   });
 
@@ -470,10 +531,23 @@ async function startServer() {
         username: req.user.username,
         title: req.body.title || req.body.name,
         description: req.body.description || req.body.extraDetails,
-        mediaUrl: req.body.mediaUrl || req.body.imageUrl
+        mediaUrl: req.body.mediaUrl || req.body.imageUrl,
+        sellerSelfie: req.body.sellerSelfie,
+        storeName: req.body.storeName,
+        currency: req.body.currency,
+        contact: req.body.contact,
+        location: req.body.location
       });
       await item.save();
-      res.json(item);
+      const mappedItem = {
+        ...item.toObject(),
+        id: item._id,
+        publisherName: item.username,
+        name: item.title,
+        imageUrl: item.mediaUrl,
+        extraDetails: item.description
+      };
+      res.json(mappedItem);
     } catch (err) { res.status(500).json({ error: (err as any).message }); }
   });
 
